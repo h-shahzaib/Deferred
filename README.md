@@ -1,6 +1,4 @@
 
-## **About This Library**  
-
 ⚠ **Note:** This library is intended for educational and demonstration purposes only. While it functions as expected, it still requires further refinement for real-world scenarios, particularly in terms of usability. Ideally, its API should be as intuitive as libraries like **Entity Framework Plus**.  
 
 ## **Overview**  
