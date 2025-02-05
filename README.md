@@ -49,8 +49,8 @@ This library provides the following **deferred execution methods** for batching 
 | `.FutureSum()`         | `long` or `long?` |
 | `.FutureCount()`       | `int` |
 | `.FutureLongCount()`   | `long` |
-| `.FutureSkip()`        | `IQueryable<T>` |
-| `.FutureTake()`        | `IQueryable<T>` |
+| `.FutureSkip()`        | `T[]` |
+| `.FutureTake()`        | `T[]` |
 | `.FutureFirstOrDefault()` | `T?` |
 
 ---
