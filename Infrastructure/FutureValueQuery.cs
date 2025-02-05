@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Deferred.Infrastructure
 {
-    public class DefferedValueQuery<T>
+    public class FutureValueQuery<T>
     {
         public bool HasValue { get; set; }
         public T Value

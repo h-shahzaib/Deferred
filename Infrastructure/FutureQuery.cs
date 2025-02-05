@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Deferred.Infrastructure
 {
-    public class DefferedQuery<T> : IEnumerable<T>
+    public class FutureQuery<T> : IEnumerable<T>
     {
         public bool HasValue { get; private set; }
         public List<T> Items { get; private set; }

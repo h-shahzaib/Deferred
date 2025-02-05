@@ -18,12 +18,12 @@ using System.Threading.Tasks;
 
 namespace Deferred.Infrastructure
 {
-    public class DefferedContext
+    public class DeferredContext
     {
         private readonly string m_ConnectionString;
         private readonly List<BatchItem> m_BatchItems;
 
-        public DefferedContext(string connection_string)
+        public DeferredContext(string connection_string)
         {
             m_ConnectionString = connection_string;
             m_BatchItems = new List<BatchItem>();
@@ -47,7 +47,7 @@ namespace Deferred.Infrastructure
                     var future_query = m_BatchItems[result_index].Future;
                     var future_type = future_query.GetType();
                     var generic_type = future_type.GetGenericArguments()[0];
-                    var method = typeof(DefferedContext).GetMethod("ReaderToList", BindingFlags.Static | BindingFlags.Public);
+                    var method = typeof(DeferredContext).GetMethod("ReaderToList", BindingFlags.Static | BindingFlags.Public);
                     var generic_method = method.MakeGenericMethod(generic_type);
                     var list = generic_method.Invoke(null, new object[] { reader });
                     if (future_type.Name.StartsWith("FutureQuery"))
@@ -72,7 +72,7 @@ namespace Deferred.Infrastructure
             }
         }
 
-        private string GetParameterizedQuery(DbCommand command)
+        private static string GetParameterizedQuery(DbCommand command)
         {
             string query_string = command.CommandText;
             foreach (SqlParameter parameter in command.Parameters)
@@ -86,9 +86,9 @@ namespace Deferred.Infrastructure
 
         /* --------------------------------------------------------------------------------------------------------------------------------- */
 
-        public DefferedQuery<T> InFuture<T>(IQueryable<T> queryable)
+        public FutureQuery<T> Future<T>(IQueryable<T> queryable)
         {
-            var future = new DefferedQuery<T>();
+            var future = new FutureQuery<T>();
             var batch = new BatchItem();
             batch.Future = future;
             batch.Command = queryable.CreateDbCommand();
@@ -98,14 +98,14 @@ namespace Deferred.Infrastructure
 
         /* --------------------------------------------------------------------------------------------------------------------------------- */
 
-        public DefferedValueQuery<int> DeferredSum<T>(IQueryable<T> queryable, Expression<Func<T, int>> selector) => DeferredForValues<int>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS int)");
-        public DefferedValueQuery<int?> DeferredSum<T>(IQueryable<T> queryable, Expression<Func<T, int?>> selector) => DeferredForValues<int?>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS int)");
-        public DefferedValueQuery<long> DeferredSum<T>(IQueryable<T> queryable, Expression<Func<T, long>> selector) => DeferredForValues<long>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS bigint)");
-        public DefferedValueQuery<long?> DeferredSum<T>(IQueryable<T> queryable, Expression<Func<T, long?>> selector) => DeferredForValues<long?>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS bigint)");
-        public DefferedValueQuery<int> DeferredCount(IQueryable queryable) => DeferredForValues<int>(queryable, "COUNT(*)");
-        public DefferedValueQuery<long> DeferredLongCount(IQueryable queryable) => DeferredForValues<long>(queryable, "CAST(COUNT(*) AS bigint)");
+        public FutureValueQuery<int> FutureSum<T>(IQueryable<T> queryable, Expression<Func<T, int>> selector) => FutureForValues<int>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS int)");
+        public FutureValueQuery<int?> FutureSum<T>(IQueryable<T> queryable, Expression<Func<T, int?>> selector) => FutureForValues<int?>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS int)");
+        public FutureValueQuery<long> FutureSum<T>(IQueryable<T> queryable, Expression<Func<T, long>> selector) => FutureForValues<long>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS bigint)");
+        public FutureValueQuery<long?> FutureSum<T>(IQueryable<T> queryable, Expression<Func<T, long?>> selector) => FutureForValues<long?>(queryable, $"CAST(SUM({selector.GetPropertyInfo().Name}) AS bigint)");
+        public FutureValueQuery<int> FutureCount(IQueryable queryable) => FutureForValues<int>(queryable, "COUNT(*)");
+        public FutureValueQuery<long> FutureLongCount(IQueryable queryable) => FutureForValues<long>(queryable, "CAST(COUNT(*) AS bigint)");
 
-        private DefferedValueQuery<T> DeferredForValues<T>(IQueryable queryable, string Function)
+        private FutureValueQuery<T> FutureForValues<T>(IQueryable queryable, string Function)
         {
             var command = queryable.CreateDbCommand();
             var regex = new Regex("SELECT.+\nFROM");
@@ -113,9 +113,9 @@ namespace Deferred.Infrastructure
             return AddToBatch<T>(command);
         }
 
-        private DefferedValueQuery<T> AddToBatch<T>(DbCommand command)
+        private FutureValueQuery<T> AddToBatch<T>(DbCommand command)
         {
-            var future = new DefferedValueQuery<T>();
+            var future = new FutureValueQuery<T>();
             var batch = new BatchItem();
             batch.Future = future;
             batch.Command = command;
@@ -125,13 +125,13 @@ namespace Deferred.Infrastructure
 
         /* --------------------------------------------------------------------------------------------------------------------------------- */
 
-        public DefferedValueQuery<T> DeferredFirstOrDefault<T>(IQueryable<T> queryable) => AddToBatch(queryable.Take(1));
-        public DefferedValueQuery<T> DeferredSkip<T>(IQueryable<T> queryable, int count) => AddToBatch(queryable.Skip(count));
-        public DefferedValueQuery<T> DeferredTake<T>(IQueryable<T> queryable, int count) => AddToBatch(queryable.Take(count));
+        public FutureValueQuery<T> FutureFirstOrDefault<T>(IQueryable<T> queryable) => AddToBatch(queryable.Take(1));
+        public FutureValueQuery<T> FutureSkip<T>(IQueryable<T> queryable, int count) => AddToBatch(queryable.Skip(count));
+        public FutureValueQuery<T> FutureTake<T>(IQueryable<T> queryable, int count) => AddToBatch(queryable.Take(count));
 
-        private DefferedValueQuery<T> AddToBatch<T>(IQueryable<T> queryable)
+        private FutureValueQuery<T> AddToBatch<T>(IQueryable<T> queryable)
         {
-            var future = new DefferedValueQuery<T>();
+            var future = new FutureValueQuery<T>();
             var batch = new BatchItem();
             batch.Future = future;
             batch.Command = queryable.CreateDbCommand();
