@@ -1,5 +1,6 @@
+⚠ **Note:** This library is intended for educational and demonstration purposes only. While it works as expected, it still requires further refinement for real-world use, especially in terms of usability.
 
-⚠ **Note:** This library is intended for educational and demonstration purposes only. While it functions as expected, it still requires further refinement for real-world scenarios, particularly in terms of usability. Ideally, its API should be as intuitive as libraries like **Entity Framework Plus**.  
+Ideally, the API should be as intuitive as libraries like **Entity Framework Plus**. However, achieving this level of simplicity required careful consideration regarding thread safety. The current implementation is fully thread-safe, even when the same `DeferredContext` is accessed across multiple threads—though this may still depend on the specific use case.
 
 ## **Overview**  
 
